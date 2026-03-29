@@ -18,13 +18,9 @@
             border: none;
             color: white;
             cursor: pointer;
-            background-color: red; /* AUS */
+            background-color: red;
             border-radius: 20px;
-
-            /* Schatten */
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-
-            /* Animation */
             transition: all 0.2s ease;
         }
 
@@ -37,7 +33,34 @@
         }
 
         .on {
-            background-color: green; /* AN */
+            background-color: green;
+        }
+
+        /* Eingabebox */
+        #panel {
+            margin-top: 30px;
+            display: none;
+        }
+
+        input {
+            padding: 10px;
+            width: 250px;
+            border-radius: 10px;
+            border: 1px solid gray;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: white;
+            margin: 5px auto;
+            padding: 10px;
+            width: 250px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
     </style>
 </head>
@@ -49,6 +72,21 @@
 <button onclick="toggle(this)">Internet AUS</button>
 <button onclick="toggle(this)">Webseiten AUS</button>
 
+<br>
+
+<button onclick="openPanel()">Webseiten & Apps</button>
+
+<div id="panel">
+
+    <h3>Blockliste</h3>
+
+    <input id="input" placeholder="z.B. youtube.com">
+    <button onclick="addItem()">Hinzufügen</button>
+
+    <ul id="list"></ul>
+
+</div>
+
 <script>
 function toggle(button) {
     button.classList.toggle("on");
@@ -58,6 +96,25 @@ function toggle(button) {
     } else {
         button.innerHTML = button.innerHTML.replace("AN", "AUS");
     }
+}
+
+function openPanel() {
+    const panel = document.getElementById("panel");
+    panel.style.display = panel.style.display === "none" ? "block" : "none";
+}
+
+function addItem() {
+    const input = document.getElementById("input");
+    const value = input.value;
+
+    if (value === "") return;
+
+    const li = document.createElement("li");
+    li.innerText = value;
+
+    document.getElementById("list").appendChild(li);
+
+    input.value = "";
 }
 </script>
 
