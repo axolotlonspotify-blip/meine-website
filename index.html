@@ -1,108 +1,140 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Mein Controller</title>
+    <title>Control Panel</title>
 
     <style>
         body {
+            margin: 0;
             font-family: Arial;
+            background: #0f172a;
+            color: white;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+        }
+
+        h1 {
             text-align: center;
-            margin-top: 50px;
-            background-color: #f4f4f4;
+            margin-top: 20px;
+            font-size: 28px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
 
         button {
-            padding: 20px 40px;
-            font-size: 18px;
-            margin: 10px;
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
             border: none;
-            color: white;
+            border-radius: 15px;
+            font-size: 16px;
             cursor: pointer;
-            background-color: red;
-            border-radius: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            transition: all 0.2s ease;
+            color: white;
+            background: #ef4444;
+            transition: 0.2s;
         }
 
         button:hover {
-            transform: scale(1.05);
+            transform: scale(1.03);
         }
 
         button:active {
-            transform: scale(0.95);
+            transform: scale(0.97);
         }
 
         .on {
-            background-color: green;
-        }
-
-        #panel {
-            margin-top: 30px;
-            display: none;
+            background: #22c55e !important;
         }
 
         input {
-            padding: 10px;
-            width: 250px;
-            border-radius: 10px;
-            border: 1px solid gray;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            outline: none;
+            margin-top: 10px;
         }
 
         ul {
             list-style: none;
             padding: 0;
+            margin-top: 15px;
         }
 
         li {
-            background: white;
-            margin: 5px auto;
-            padding: 10px;
-            width: 300px;
-            border-radius: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .delete {
-            background: red;
-            color: white;
+            background: #ef4444;
             border: none;
-            border-radius: 8px;
-            padding: 5px 10px;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: 0.2s;
         }
 
         .delete:hover {
-            background: darkred;
+            transform: scale(1.1);
         }
     </style>
 </head>
 
 <body>
 
-<h1>Mein Controller</h1>
+<div class="container">
 
-<button onclick="toggle(this)">Internet AUS</button>
-<button onclick="toggle(this)">Webseiten AUS</button>
+    <h1>Control Panel</h1>
 
-<br>
+    <div class="card">
+        <button onclick="toggle(this)">Internet AUS</button>
+        <button onclick="toggle(this)">Webseiten AUS</button>
+    </div>
 
-<button onclick="openPanel()">Webseiten & Apps</button>
+    <div class="card">
+        <button onclick="togglePanel()">Webseiten & Apps</button>
 
-<div id="panel">
+        <div id="panel" style="display:none; margin-top:10px;">
+            <input id="input" placeholder="z.B. youtube.com">
+            <button onclick="addItem()">Hinzufügen</button>
 
-    <h3>Blockliste</h3>
-
-    <input id="input" placeholder="z.B. youtube.com">
-    <button onclick="addItem()">Hinzufügen</button>
-
-    <ul id="list"></ul>
+            <ul id="list"></ul>
+        </div>
+    </div>
 
 </div>
 
 <script>
+let list = JSON.parse(localStorage.getItem("blocklist")) || [];
+
+window.onload = renderList;
+
 function toggle(button) {
     button.classList.toggle("on");
 
@@ -113,35 +145,54 @@ function toggle(button) {
     }
 }
 
-function openPanel() {
+function togglePanel() {
     const panel = document.getElementById("panel");
-    panel.style.display = panel.style.display === "none" ? "block" : "none";
+    panel.style.display = panel.style.display === "block" ? "none" : "block";
 }
 
 function addItem() {
     const input = document.getElementById("input");
     const value = input.value.trim();
 
-    if (value === "") return;
+    if (!value) return;
 
-    const li = document.createElement("li");
-
-    const text = document.createElement("span");
-    text.innerText = value;
-
-    const del = document.createElement("button");
-    del.innerText = "❌";
-    del.className = "delete";
-    del.onclick = function () {
-        li.remove();
-    };
-
-    li.appendChild(text);
-    li.appendChild(del);
-
-    document.getElementById("list").appendChild(li);
+    list.push(value);
+    save();
+    renderList();
 
     input.value = "";
+}
+
+function removeItem(index) {
+    list.splice(index, 1);
+    save();
+    renderList();
+}
+
+function save() {
+    localStorage.setItem("blocklist", JSON.stringify(list));
+}
+
+function renderList() {
+    const ul = document.getElementById("list");
+    ul.innerHTML = "";
+
+    list.forEach((item, index) => {
+        const li = document.createElement("li");
+
+        const text = document.createElement("span");
+        text.textContent = item;
+
+        const btn = document.createElement("button");
+        btn.className = "delete";
+        btn.innerHTML = "✕";
+        btn.onclick = () => removeItem(index);
+
+        li.appendChild(text);
+        li.appendChild(btn);
+
+        ul.appendChild(li);
+    });
 }
 </script>
 
